@@ -5,14 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CryingBugs"
         mc:Ignorable="d"
-        Title="MainWindow" Height="500" Width="800">
-    <Grid>
+        Title="MainWindow"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Height="505"
+        Width="805">
+    <Grid MouseDown="Grid_MouseDown">
 
-        <Canvas Background="Black" x:Name="mainLayout">
+        <Canvas Background="Black" x:Name="mainLayout" Width="805" Height="505">
 
             <!--<Ellipse Width="5"
                      Height="5"
-                     Fill="#fff" />-->
+                     Canvas.Top="500"
+                     Canvas.Left="800"
+                     Fill="#0ff" />-->
         </Canvas>
 
     </Grid>

@@ -1,4 +1,5 @@
 ﻿using CryingBugs.Core;
+using CryingBugs.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,69 +19,53 @@ namespace CryingBugs
 {
     public partial class MainWindow : Window
     {
-        int width, height;
-        int pixel = 5;
-
-
         const float fps = 100;
         const float dt = 1 / fps;
-        float accumulator = 0;
 
-        /*
-        // Единицы измерения - секунды
-        float frameStart = DateTime.Today();
-
-// основной цикл
-while(true){
-  const float currentTime = GetCurrentTime();
-
-        // Сохраняется время, прошедшее с начала последнего кадра
-        accumulator += currentTime - frameStart();
-
-        // Записывается начало этого кадра
-        frameStart = currentTime;
-
-  while(accumulator > dt){
-    UpdatePhysics(dt );
-        accumulator -= dt;}
-
-  RenderGame()
-            }*/
+        int qtyTargets = 5;
+        int qtyBugs = 2;
 
 
-        Ellipse el;
         public MainWindow()
         {
             InitializeComponent();
-
             Manager.MainLayout = mainLayout;
+            Manager.targets = new List<Target>(qtyTargets);
+            Manager.bugs = new List<Bug>(qtyBugs);
 
-            width = (int)mainLayout.Width;
-            height = (int)mainLayout.Height;
-
-            el = new Ellipse
+            for (int i = 0; i < qtyTargets; i++)
             {
-                Width = pixel,
-                Height = pixel,
-                Fill = new SolidColorBrush(Colors.White),
-            };
+                var el = new Target();
+                Manager.targets.Add(el);
+            }
 
-            mainLayout.Children.Add(el);
+            for (int i = 0; i < qtyBugs; i++)
+            {
+                var el = new Bug();
+                Manager.bugs.Add(el);
+            }
 
             Start();
         }
 
+        private void Grid_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            //pass
+            this.DragMove();
+        }
+
         public async void Start()
         {
-            int x = 1;
             while (true)
             {
-
-                Canvas.SetTop(el, x++);
+                foreach (var item in Manager.bugs)
+                {
+                    item.Step();
+                }
                 await Task.Delay(TimeSpan.FromSeconds(dt));
             }
         }
 
-
+        
     }
 }
