@@ -11,7 +11,7 @@ namespace CryingBugs.Models
     internal class Target
     {
         UIElement element;
-        public AABB aabb;
+        public Dimensions aabb;
         private Vector _position;
         public int Radius = 4;
         int pixel = 5;
@@ -40,10 +40,12 @@ namespace CryingBugs.Models
             Canvas.SetLeft(element, _position.X);
             Canvas.SetTop(element, _position.Y);
 
-            aabb = new AABB
+            aabb = new Dimensions
             {
-                min = new Vector(_position.X, _position.Y + pixel*Radius),
-                max = new Vector(_position.X + pixel * Radius, _position.Y)
+                x = _position.X,
+                y = _position.Y,
+                w = Radius *pixel - pixel,
+                h = Radius * pixel-pixel
             };
         }
 

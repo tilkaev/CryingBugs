@@ -22,7 +22,7 @@ namespace CryingBugs
         const float fps = 100;
         const float dt = 1 / fps;
 
-        int qtyTargets = 5;
+        int qtyTargets = 1;
         int qtyBugs = 2;
 
 

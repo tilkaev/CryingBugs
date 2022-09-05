@@ -18,7 +18,7 @@ namespace CryingBugs.Models
         public event PropertyChangedEventHandler PropertyChanged;
 
         UIElement element;
-        AABB aabb;
+        Dimensions dimensions;
 
         public Vector _way;
         private Vector _position;
@@ -53,7 +53,8 @@ namespace CryingBugs.Models
             {
                 if (item != this)
                 {
-                    var newAABB = new AABB
+                    /*
+                    var newAABB = new Dimensions
                     {
                         min = new Vector(item.aabb.min.X - hearingDistance, item.aabb.min.Y + hearingDistance),
                         max = new Vector(item.aabb.min.X + hearingDistance, item.aabb.min.Y - hearingDistance)
@@ -77,10 +78,10 @@ namespace CryingBugs.Models
                     Canvas.SetLeft(element2, newAABB.max.X);
                     Canvas.SetTop(element2, newAABB.max.Y);
 
-                    if (AABB.vsAABB(item.aabb, newAABB))
+                    if (Dimensions.CollisionDetection(item.aabb, newAABB))
                     {
 
-                    }
+                    }*/
                    
                 }
             }
@@ -122,10 +123,12 @@ namespace CryingBugs.Models
         {
             var newPos = new Vector(_position.X + _way.X, _position.Y + _way.Y);
             //var newPos = new Vector(_position.X + _way.X * Speed, _position.Y + _way.Y * Speed);
-            var newAABB = new AABB
+            var newDimensions = new Dimensions
             {
-                min = new Vector(newPos.X, newPos.Y + pixel),
-                max = new Vector(newPos.X + pixel, newPos.Y)
+                x = newPos.X,
+                y = newPos.Y,
+                w = pixel,
+                h = pixel
             };
 
 
@@ -145,7 +148,7 @@ namespace CryingBugs.Models
             
             foreach (var item in Manager.targets)
             {
-                if (AABB.vsAABB(newAABB, item.aabb))
+                if (Dimensions.CollisionDetection(newDimensions, item.aabb))
                 {
                     TargetFound(item);
                     _way.X *= -1;
@@ -173,10 +176,10 @@ namespace CryingBugs.Models
             Canvas.SetLeft(element, _position.X);
             Canvas.SetTop(element, _position.Y);
 
-            aabb = new AABB
+            dimensions = new Dimensions
             {
-                min = new Vector(_position.X, _position.Y + pixel),
-                max = new Vector(_position.X + pixel, _position.Y)
+                x = _position.X,
+                y = _position.Y
             };
         }
     }
