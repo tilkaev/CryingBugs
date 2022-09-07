@@ -9,6 +9,8 @@ using System.Runtime.CompilerServices;
 using System.Windows.Controls;
 using CryingBugs.Core;
 using System.Threading.Tasks;
+using System.Linq;
+
 
 namespace CryingBugs.Models
 {
@@ -18,27 +20,33 @@ namespace CryingBugs.Models
         public event PropertyChangedEventHandler PropertyChanged;
 
         UIElement element;
-        Dimensions dimensions;
+        Shape shape;
 
         public Vector _way;
         private Vector _position;
         double Speed;
-        int pixel = 5;
+        int pixel = 6;
         float hearingDistance = 50;
 
-        Target DesiredTarget = null; // Искомая цель
-        List<double> distanceToTarget; // Расстояние до определенной цели
-        int indexForScream = 0; // Индекс для крика определенной цели
-        int maxIndexForScream = Manager.targets.Count; // Индекс для крика определенной цели
+        Target MainTarget = null; // Искомая цель
+        Dictionary<Target, double> dictDistanceToTarget; // Расстояние до определенной цели
+        int indexScream = 0; // Индекс для крика определенной цели
+        int maxIndexScream = Manager.targets.Count - 1; // Максимальный индекс для крика определенной цели
 
+
+        public int _indexForScream
+        {
+            get { return indexScream; }
+            set { indexScream = indexScream < maxIndexScream ? indexScream + 1 : 0; }
+        }
 
         Random rnd = new Random();
 
         public void TargetFound(Target target)
         {
-            if (DesiredTarget == target || DesiredTarget == null)
+            if (MainTarget == target || MainTarget == null)
             {
-
+                dictDistanceToTarget[target] = 0;
             }
         }
 
@@ -47,48 +55,43 @@ namespace CryingBugs.Models
 
         }
 
+
+
         public void Cry()
         {
             foreach (var item in Manager.bugs)
             {
                 if (item != this)
                 {
-                    /*
-                    var newAABB = new Dimensions
-                    {
-                        min = new Vector(item.aabb.min.X - hearingDistance, item.aabb.min.Y + hearingDistance),
-                        max = new Vector(item.aabb.min.X + hearingDistance, item.aabb.min.Y - hearingDistance)
-                    };
-                    var element1 = new Ellipse
-                    {
-                        Width = 2,
-                        Height = 2,
-                        Fill = new SolidColorBrush(Colors.Yellow),
-                    };
-                    Manager.MainLayout.Children.Add(element1);
-                    Canvas.SetLeft(element1, newAABB.min.X);
-                    Canvas.SetTop(element1, newAABB.min.Y);
-                    var element2 = new Ellipse
-                    {
-                        Width = 2,
-                        Height = 2,
-                        Fill = new SolidColorBrush(Colors.Yellow),
-                    };
-                    Manager.MainLayout.Children.Add(element2);
-                    Canvas.SetLeft(element2, newAABB.max.X);
-                    Canvas.SetTop(element2, newAABB.max.Y);
 
-                    if (Dimensions.CollisionDetection(item.aabb, newAABB))
+                    var newShape = new Shape
                     {
+                        x = shape.x,
+                        y = shape.y,
+                        radius = pixel / 2 + hearingDistance / 2
+                    };
 
-                    }*/
-                   
+
+
+                    if (Shape.collideCircle(item.shape, newShape))
+                    {
+                        ToListen(dictDistanceToTarget.FirstOrDefault(x => x.Value == indexScream).Key, dictDistanceToTarget.FirstOrDefault(x => x.Value == indexScream).Value);
+                    }
+
+                    _indexForScream++;
                 }
             }
         }
 
         public Bug()
         {
+            dictDistanceToTarget = new Dictionary<Target, double>();
+            MainTarget = Manager.targets[rnd.Next(0, Manager.targets.Count)];
+            foreach (var item in Manager.targets)
+            {
+                dictDistanceToTarget.Add(item, rnd.Next(0, Convert.ToInt32(Properties.Resources.Width)));
+            }
+
             element = new Ellipse
             {
                 Width = pixel,
@@ -123,12 +126,11 @@ namespace CryingBugs.Models
         {
             var newPos = new Vector(_position.X + _way.X, _position.Y + _way.Y);
             //var newPos = new Vector(_position.X + _way.X * Speed, _position.Y + _way.Y * Speed);
-            var newDimensions = new Dimensions
+            var shape = new Shape
             {
-                x = newPos.X,
-                y = newPos.Y,
-                w = pixel,
-                h = pixel
+                x = newPos.X + pixel / 2,
+                y = newPos.Y + pixel / 2,
+                radius = pixel / 2
             };
 
 
@@ -145,10 +147,10 @@ namespace CryingBugs.Models
                 return;
             }
 
-            
+
             foreach (var item in Manager.targets)
             {
-                if (Dimensions.CollisionDetection(newDimensions, item.aabb))
+                if (Shape.collideCircle(shape, item.shape))
                 {
                     TargetFound(item);
                     _way.X *= -1;
@@ -156,6 +158,14 @@ namespace CryingBugs.Models
                     return;
                 }
             }
+            for (int i = 0; i < dictDistanceToTarget.Count; i++)
+            {
+                dictDistanceToTarget[dictDistanceToTarget.ElementAt(i).Key] += 1 ;
+            }
+                
+
+            
+
             Position = newPos;
             Cry();
         }
@@ -176,7 +186,7 @@ namespace CryingBugs.Models
             Canvas.SetLeft(element, _position.X);
             Canvas.SetTop(element, _position.Y);
 
-            dimensions = new Dimensions
+            shape = new Shape
             {
                 x = _position.X,
                 y = _position.Y

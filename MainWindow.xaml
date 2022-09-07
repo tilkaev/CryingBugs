@@ -12,13 +12,17 @@
         Width="805">
     <Grid MouseDown="Grid_MouseDown">
 
-        <Canvas Background="Black" x:Name="mainLayout" Width="805" Height="505">
+        <Canvas Background="Black"
+                x:Name="mainLayout"
+                Width="805"
+                Height="505">
 
-            <!--<Ellipse Width="5"
-                     Height="5"
-                     Canvas.Top="500"
-                     Canvas.Left="800"
-                     Fill="#0ff" />-->
+            <!--<Ellipse Width="50"
+                     Height="50"
+                     Canvas.Top="0"
+                     Canvas.Left="0"
+                     Fill="#0f8" />-->
+
         </Canvas>
 
     </Grid>

@@ -11,10 +11,11 @@ namespace CryingBugs.Models
     internal class Target
     {
         UIElement element;
-        public Dimensions aabb;
+        public int id = 0;
+        public Shape shape;
         private Vector _position;
         public int Radius = 4;
-        int pixel = 5;
+        int pixel = 6;
 
 
         Random rnd = new Random();
@@ -23,7 +24,7 @@ namespace CryingBugs.Models
         {
             element = new Ellipse
             {
-                Width = pixel* Radius,
+                Width = pixel * Radius,
                 Height = pixel * Radius,
                 Fill = new SolidColorBrush(Colors.DarkRed),
             };
@@ -34,18 +35,17 @@ namespace CryingBugs.Models
             var height = Convert.ToInt32(Properties.Resources.Height);
             _position = new Vector
             {
-                X = rnd.Next(0, width-pixel* Radius),
+                X = rnd.Next(0, width - pixel * Radius),
                 Y = rnd.Next(0, height - pixel * Radius)
             };
             Canvas.SetLeft(element, _position.X);
             Canvas.SetTop(element, _position.Y);
 
-            aabb = new Dimensions
+            shape = new Shape
             {
-                x = _position.X,
-                y = _position.Y,
-                w = Radius *pixel - pixel,
-                h = Radius * pixel-pixel
+                x = _position.X + (pixel * Radius) / 2,
+                y = _position.Y + (pixel * Radius) / 2,
+                radius = pixel * Radius / 2
             };
         }
 
