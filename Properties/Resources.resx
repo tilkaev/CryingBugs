@@ -118,12 +118,12 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Height" xml:space="preserve">
-    <value>100</value>
+    <value>500</value>
   </data>
   <data name="Pixel" xml:space="preserve">
     <value>5</value>
   </data>
   <data name="Width" xml:space="preserve">
-    <value>100</value>
+    <value>800</value>
   </data>
 </root>

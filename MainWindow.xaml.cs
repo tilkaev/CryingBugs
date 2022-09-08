@@ -22,8 +22,8 @@ namespace CryingBugs
         const float fps = 100;
         const float dt = 1 / fps;
 
-        int qtyTargets = 1;
-        int qtyBugs = 2;
+        int qtyTargets = 2;
+        int qtyBugs = 200;
 
 
         public MainWindow()
@@ -36,14 +36,22 @@ namespace CryingBugs
             for (int i = 0; i < qtyTargets; i++)
             {
                 var el = new Target();
+                el.id = i;
                 Manager.targets.Add(el);
             }
 
             for (int i = 0; i < qtyBugs; i++)
             {
                 var el = new Bug();
+                el.id = i;
                 Manager.bugs.Add(el);
             }
+
+            var win = new Debug();
+            win.Show();
+            Manager.DebugTB = win.debugtextbox;
+            var win2 = new RemoteControl();
+            win2.Show();
 
             Start();
         }
@@ -62,10 +70,11 @@ namespace CryingBugs
                 {
                     item.Step();
                 }
-                await Task.Delay(TimeSpan.FromSeconds(dt));
+                await Task.Delay(TimeSpan.FromSeconds(dt / Manager.Speed));
+                Manager.DebugTB.Text = "";
             }
         }
 
-        
+
     }
 }

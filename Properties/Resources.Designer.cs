@@ -61,7 +61,7 @@ namespace CryingBugs.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на 100.
+        ///   Ищет локализованную строку, похожую на 500.
         /// </summary>
         internal static string Height {
             get {
@@ -79,7 +79,7 @@ namespace CryingBugs.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на 100.
+        ///   Ищет локализованную строку, похожую на 800.
         /// </summary>
         internal static string Width {
             get {

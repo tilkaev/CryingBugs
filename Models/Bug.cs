@@ -19,49 +19,56 @@ namespace CryingBugs.Models
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public int id;
         UIElement element;
         Shape shape;
 
         public Vector _way;
         private Vector _position;
-        double Speed;
+        public double Speed;
         int pixel = 6;
         float hearingDistance = 50;
 
-        Target MainTarget = null; // Искомая цель
+        Target MainTarget; // Искомая цель
         Dictionary<Target, double> dictDistanceToTarget; // Расстояние до определенной цели
         int indexScream = 0; // Индекс для крика определенной цели
         int maxIndexScream = Manager.targets.Count - 1; // Максимальный индекс для крика определенной цели
 
 
-        public int _indexForScream
+        public int _indexScream
         {
             get { return indexScream; }
-            set { indexScream = indexScream < maxIndexScream ? indexScream + 1 : 0; }
+            set { indexScream = indexScream < maxIndexScream ? value : 0; }
         }
 
         Random rnd = new Random();
 
-        public void TargetFound(Target target)
+
+        public void ToListen(Target target, double distance, Bug bug_s)
         {
-            if (MainTarget == target || MainTarget == null)
+            if (distance < dictDistanceToTarget[target])
             {
-                dictDistanceToTarget[target] = 0;
+                dictDistanceToTarget[target] = distance;
+                if (MainTarget == target)
+                {
+                    _way = new Vector
+                    {
+                        X = bug_s.Position.X - Position.X,
+                        Y = bug_s.Position.Y - Position.Y
+                    };
+                    _way.Normalize();
+                }
             }
-        }
-
-        public void ToListen(Target target, double distance)
-        {
-
+            
         }
 
 
 
         public void Cry()
         {
-            foreach (var item in Manager.bugs)
+            foreach (var bug in Manager.bugs)
             {
-                if (item != this)
+                if (bug != this)
                 {
 
                     var newShape = new Shape
@@ -72,13 +79,16 @@ namespace CryingBugs.Models
                     };
 
 
-
-                    if (Shape.collideCircle(item.shape, newShape))
+                    //Manager.DebugTB.Text = $"{id} | {dictDistanceToTarget.ElementAt(indexScream).Value + hearingDistance} - {dictDistanceToTarget.ElementAt(indexScream).Key.id} | main-{MainTarget.id}\n"+ Manager.DebugTB.Text;
+                    if (Shape.collideCircle(bug.shape, newShape))
                     {
-                        ToListen(dictDistanceToTarget.FirstOrDefault(x => x.Value == indexScream).Key, dictDistanceToTarget.FirstOrDefault(x => x.Value == indexScream).Value);
+                        bug.ToListen(dictDistanceToTarget.ElementAt(indexScream).Key,
+                            dictDistanceToTarget.ElementAt(indexScream).Value + hearingDistance,
+                            this);
                     }
 
-                    _indexForScream++;
+
+                    _indexScream++;
                 }
             }
         }
@@ -117,8 +127,8 @@ namespace CryingBugs.Models
 
         void Normalize()
         {
-            Speed = Math.Sqrt(_way.X * _way.X + _way.Y * _way.Y);//вычислили длину вектора
-            _way.X *= 1 / Speed;//нормализуем вектор
+            Speed = Math.Sqrt(_way.X * _way.X + _way.Y * _way.Y);//вычисляем длину вектора
+            _way.X *= 1 / Speed; //нормализуем вектор
             _way.Y *= 1 / Speed;
         }
 
@@ -126,6 +136,8 @@ namespace CryingBugs.Models
         {
             var newPos = new Vector(_position.X + _way.X, _position.Y + _way.Y);
             //var newPos = new Vector(_position.X + _way.X * Speed, _position.Y + _way.Y * Speed);
+
+            // Шаг
             var shape = new Shape
             {
                 x = newPos.X + pixel / 2,
@@ -134,6 +146,7 @@ namespace CryingBugs.Models
             };
 
 
+            // Проверка на столконовение границ
             if (newPos.Y < 0 ||
                 newPos.Y > Convert.ToInt32(Properties.Resources.Height))
             {
@@ -147,24 +160,31 @@ namespace CryingBugs.Models
                 return;
             }
 
-
-            foreach (var item in Manager.targets)
+            // Проверка какая цель перед Bug, если main -> развернуться, иначе продолжить путь
+            foreach (var target in Manager.targets)
             {
-                if (Shape.collideCircle(shape, item.shape))
+                if (Shape.collideCircle(shape, target.shape))
                 {
-                    TargetFound(item);
-                    _way.X *= -1;
-                    _way.Y *= -1;
-                    return;
+                    dictDistanceToTarget[target] = 0;
+                    if (MainTarget == target)
+                    {
+                        _indexScream += 1;
+                        MainTarget = dictDistanceToTarget.ElementAt(_indexScream).Key;
+                        _way.X *= -1;
+                        _way.Y *= -1;
+
+                        return;
+                    }
+
                 }
             }
             for (int i = 0; i < dictDistanceToTarget.Count; i++)
             {
-                dictDistanceToTarget[dictDistanceToTarget.ElementAt(i).Key] += 1 ;
+                dictDistanceToTarget[dictDistanceToTarget.ElementAt(i).Key] += 1;
             }
-                
 
-            
+
+
 
             Position = newPos;
             Cry();
